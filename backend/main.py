@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import clientes
+from routes import clientes, visitas
+
+# comando pra testar:
+# uvicorn main:app --reload
 
 app = FastAPI()
 
@@ -12,3 +15,4 @@ app.add_middleware(
 )
 
 app.include_router(clientes.router, prefix='/cliente')
+app.include_router(visitas.router, prefix='/visitas')
