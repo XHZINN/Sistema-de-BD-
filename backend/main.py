@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import clientes, visitas, agendamentos, enums
+from routes import clientes, visitas, agendamentos, enums, relatorios
 
 # comando pra testar:
 # uvicorn main:app --reload
@@ -18,3 +18,4 @@ app.include_router(clientes.router, prefix='/cliente')
 app.include_router(visitas.router, prefix='/visitas')
 app.include_router(agendamentos.router, prefix='/agendamento')
 app.include_router(enums.router, prefix='/enum')
+app.include_router(relatorios.router, prefix='/relatorio')

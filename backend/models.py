@@ -1,6 +1,6 @@
 from pydantic import BaseModel, model_validator
-from typing import List, Optional
-from datetime import datetime
+from typing import List, Optional, Any, Dict
+from datetime import datetime, date
 
 
 class Contato(BaseModel):
@@ -35,12 +35,12 @@ class CadastrarVisita(BaseModel):
 
 class CadastrarAgendamento(BaseModel):
     id_cliente: str
-    tipo_agendamento: str        # 'Planejada' | 'Inesperada'
+    tipo_agendamento: str       
     data: datetime
-    urgencia: str                # conforme ENUM do BD
+    urgencia: str                
     local: str
-    formato: str                 # 'Presencial' | 'Online'
-    status: str                  # 'Agendada' | 'Concluída' | 'Cancelada'
+    formato: str                 
+    status: str                  
     observacao: Optional[str] = None
  
  
@@ -53,3 +53,30 @@ class AtualizarAgendamento(BaseModel):
     status: Optional[str] = None
     observacao: Optional[str] = None
  
+class CadastrarRelatorio(BaseModel):
+    id_visita: str
+    tipo: str
+    data_prevista: date
+    status: str = 'Pendente'
+    documento: Optional[str] = None
+    avancos: Optional[str] = None
+    proximo_passo: Optional[str] = None
+    cobranca_extra: bool = False
+    valor_extra: Optional[float] = None
+    duracao: Optional[float] = None
+    conteudo: Optional[Dict[str, Any]] = None
+    conteudo_html: Optional[str] = None
+
+
+class AtualizarRelatorio(BaseModel):
+    tipo: Optional[str] = None
+    data_prevista: Optional[date] = None
+    status: Optional[str] = None
+    documento: Optional[str] = None
+    avancos: Optional[str] = None
+    proximo_passo: Optional[str] = None
+    cobranca_extra: Optional[bool] = None
+    valor_extra: Optional[float] = None
+    duracao: Optional[float] = None
+    conteudo: Optional[Dict[str, Any]] = None
+    conteudo_html: Optional[str] = None
