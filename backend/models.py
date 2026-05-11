@@ -32,3 +32,8 @@ class CadastrarVisita(BaseModel):
     hora_inicio: datetime
     observacao: Optional[str] = None
     registro_mult: Optional[str] = None
+
+
+class AtualizarVisita(BaseModel):
+    observacao: Optional[str] = None
+    registro_mult: Optional[str] = None
