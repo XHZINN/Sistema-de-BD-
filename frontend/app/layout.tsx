@@ -17,7 +17,21 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className="bg-background">
+    <html lang="pt-BR" suppressHydrationWarning>
+      {/* Script inline evita o flash de tema errado antes do JS carregar */}
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var saved = localStorage.getItem('theme');
+              var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (saved === 'dark' || (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+              }
+            })();
+          `
+        }} />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Sidebar />
         <main className="ml-64 min-h-screen">

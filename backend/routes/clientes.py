@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from database import supabase
+from typing import Optional
 from models import CadastrarCliente
 
 router = APIRouter()
@@ -35,3 +36,15 @@ async def cadastrar_cliente(dados: CadastrarCliente):
     }).execute()
 
     return {'mensagem': 'Cliente cadastrado com sucesso!', 'id_cliente': id_cliente}
+
+@router.get('/listar')
+async def listar_clientes(
+    nome: Optional[str] = Query(None),
+):
+    query = supabase.table('cliente').select('id_cliente, nome, cidade, tipo_cliente')
+
+    if nome:
+        query = query.ilike('nome', f'%{nome}%')
+
+    response = query.order('nome').execute()
+    return response.data

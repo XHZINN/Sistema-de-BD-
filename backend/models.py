@@ -32,3 +32,24 @@ class CadastrarVisita(BaseModel):
     hora_inicio: datetime
     observacao: Optional[str] = None
     registro_mult: Optional[str] = None
+
+class CadastrarAgendamento(BaseModel):
+    id_cliente: str
+    tipo_agendamento: str        # 'Planejada' | 'Inesperada'
+    data: datetime
+    urgencia: str                # conforme ENUM do BD
+    local: str
+    formato: str                 # 'Presencial' | 'Online'
+    status: str                  # 'Agendada' | 'Concluída' | 'Cancelada'
+    observacao: Optional[str] = None
+ 
+ 
+class AtualizarAgendamento(BaseModel):
+    tipo_agendamento: Optional[str] = None
+    data: Optional[datetime] = None
+    urgencia: Optional[str] = None
+    local: Optional[str] = None
+    formato: Optional[str] = None
+    status: Optional[str] = None
+    observacao: Optional[str] = None
+ 
