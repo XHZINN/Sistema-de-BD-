@@ -1,49 +1,93 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
+/* ══════════════════════════════════════════
+   MODO CLARO — azul escuro, verde sóbrio, branco
+   ══════════════════════════════════════════ */
 :root {
-  --background: oklch(0.13 0.005 260);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.17 0.005 260);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.17 0.005 260);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.7 0.15 180);
-  --primary-foreground: oklch(0.13 0.005 260);
-  --secondary: oklch(0.22 0.005 260);
-  --secondary-foreground: oklch(0.9 0 0);
-  --muted: oklch(0.22 0.01 260);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.7 0.15 180);
-  --accent-foreground: oklch(0.13 0.005 260);
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.28 0.01 260);
-  --input: oklch(0.22 0.005 260);
-  --ring: oklch(0.7 0.15 180);
-  --chart-1: oklch(0.7 0.15 180);
-  --chart-2: oklch(0.65 0.12 280);
-  --chart-3: oklch(0.7 0.18 60);
-  --chart-4: oklch(0.6 0.15 320);
-  --chart-5: oklch(0.65 0.2 25);
+  --background: oklch(0.98 0.002 240);
+  --foreground: oklch(0.15 0.03 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.03 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.03 240);
+  --primary: oklch(0.35 0.1 240);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.93 0.01 240);
+  --secondary-foreground: oklch(0.25 0.03 240);
+  --muted: oklch(0.93 0.01 240);
+  --muted-foreground: oklch(0.5 0.02 240);
+  --accent: oklch(0.5 0.12 160);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.87 0.01 240);
+  --input: oklch(0.93 0.01 240);
+  --ring: oklch(0.35 0.1 240);
+  --chart-1: oklch(0.35 0.1 240);
+  --chart-2: oklch(0.5 0.12 160);
+  --chart-3: oklch(0.6 0.15 70);
+  --chart-4: oklch(0.55 0.12 280);
+  --chart-5: oklch(0.55 0.2 25);
   --radius: 0.625rem;
-  --sidebar: oklch(0.15 0.005 260);
+  --sidebar: oklch(0.2 0.06 240);
   --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.7 0.15 180);
-  --sidebar-primary-foreground: oklch(0.13 0.005 260);
-  --sidebar-accent: oklch(0.22 0.005 260);
+  --sidebar-primary: oklch(0.5 0.12 160);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.28 0.06 240);
   --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.28 0.01 260);
-  --sidebar-ring: oklch(0.7 0.15 180);
-  --warning: oklch(0.75 0.15 70);
+  --sidebar-border: oklch(0.3 0.05 240);
+  --sidebar-ring: oklch(0.5 0.12 160);
+  --warning: oklch(0.7 0.15 70);
   --warning-foreground: oklch(0.2 0.05 70);
-  --success: oklch(0.7 0.15 145);
-  --success-foreground: oklch(0.2 0.05 145);
+  --success: oklch(0.5 0.12 160);
+  --success-foreground: oklch(0.98 0 0);
 }
 
-
+/* ══════════════════════════════════════════
+   MODO ESCURO — azul escuro profundo, verde sóbrio, texto claro
+   ══════════════════════════════════════════ */
+.dark {
+  --background: oklch(0.13 0.03 240);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.17 0.03 240);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.17 0.03 240);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.6 0.12 160);
+  --primary-foreground: oklch(0.13 0.03 240);
+  --secondary: oklch(0.22 0.03 240);
+  --secondary-foreground: oklch(0.9 0 0);
+  --muted: oklch(0.22 0.03 240);
+  --muted-foreground: oklch(0.6 0.02 240);
+  --accent: oklch(0.6 0.12 160);
+  --accent-foreground: oklch(0.13 0.03 240);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.95 0 0);
+  --border: oklch(0.28 0.03 240);
+  --input: oklch(0.22 0.03 240);
+  --ring: oklch(0.6 0.12 160);
+  --chart-1: oklch(0.6 0.12 160);
+  --chart-2: oklch(0.55 0.1 240);
+  --chart-3: oklch(0.65 0.15 70);
+  --chart-4: oklch(0.55 0.12 280);
+  --chart-5: oklch(0.6 0.2 25);
+  --sidebar: oklch(0.15 0.04 240);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.6 0.12 160);
+  --sidebar-primary-foreground: oklch(0.13 0.03 240);
+  --sidebar-accent: oklch(0.22 0.03 240);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.28 0.03 240);
+  --sidebar-ring: oklch(0.6 0.12 160);
+  --warning: oklch(0.75 0.15 70);
+  --warning-foreground: oklch(0.2 0.05 70);
+  --success: oklch(0.6 0.12 160);
+  --success-foreground: oklch(0.13 0.03 240);
+}
 
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';

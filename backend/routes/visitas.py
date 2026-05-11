@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException 
 from database import supabase
-from models import CadastrarVisita, AtualizarVisita
+from models import CadastrarVisita
 from typing import Optional
 
 router = APIRouter()
@@ -69,16 +69,16 @@ async def buscar_visita(id_visita: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.put('/{id_visita}/atualizar')
-#ele vai pegar o id da visita pra saber qual tem que atualizar ai usa o BaseModel
-async def atualizar_visita(id_visita: str, dados: AtualizarVisita):
-    try: 
-        supabase.table('visitas').update({
-            'observacao': dados.observacao.capitalize().strip() if dados.observacao else None,
-            'registro_mult': dados.registro_mult.strip() if dados.registro_mult else None
-        }).eq('id_visita',id_visita).execute()
+# @router.put('/{id_visita}/atualizar')
+# #ele vai pegar o id da visita pra saber qual tem que atualizar ai usa o BaseModel
+# async def atualizar_visita(id_visita: str, dados: AtualizarVisita):
+#     try: 
+#         supabase.table('visitas').update({
+#             'observacao': dados.observacao.capitalize().strip() if dados.observacao else None,
+#             'registro_mult': dados.registro_mult.strip() if dados.registro_mult else None
+#         }).eq('id_visita',id_visita).execute()
         
-        return {'mensagem': 'Visita atualizada com sucesso!'}
+#         return {'mensagem': 'Visita atualizada com sucesso!'}
     
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))

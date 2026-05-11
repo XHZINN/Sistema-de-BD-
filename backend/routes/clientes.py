@@ -1,5 +1,5 @@
+from fastapi import APIRouter, HTTPException, Query
 from database import supabase
-from fastapi import APIRouter, HTTPException 
 from typing import Optional
 from models import CadastrarCliente
 
@@ -52,20 +52,23 @@ async def cadastrar_cliente(dados: CadastrarCliente):
 
 @router.get('/listar')
 async def listar_clientes(
+    nome: Optional[str] = None,
     cidade: Optional[str] = None,
     tipo_cliente: Optional[str] = None
 ): 
     try:
         query = supabase.table('cliente').select('*')
         
+        if nome:
+            query = query.ilike('nome', f'%{nome}%')
         if cidade:
             query = query.eq('cidade', cidade)
         if tipo_cliente:
             query = query.eq('tipo_cliente', tipo_cliente)
 
         resposta = query.order('nome').execute()
-        
         return resposta.data
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+

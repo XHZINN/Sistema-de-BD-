@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { cn } from '@/lib/utils'
 import {
   Users,
@@ -10,7 +11,7 @@ import {
   FileText,
   LayoutDashboard,
   PlayCircle,
-  Settings,
+  Settings, 
 } from 'lucide-react'
 
 const navigation = [
@@ -30,11 +31,11 @@ export function Sidebar() {
       <div className="flex h-full flex-col">
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">AC</span>
+            <span className="text-sm font-bold text-primary-foreground">AM</span>
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-foreground">Adriano Consultoria</h1>
-            <p className="text-xs text-muted-foreground">Sistema de Gestão</p>
+            <h1 className="text-sm font-semibold text-sidebar-foreground">AM Consultoria</h1>
+            <p className="text-xs text-sidebar-foreground/60">Sistema de Gestão</p>
           </div>
         </div>
 
@@ -50,8 +51,8 @@ export function Sidebar() {
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    ? 'bg-sidebar-primary/20 text-sidebar-primary'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
                 )}
               >
                 <item.icon className="h-5 w-5" />
@@ -62,13 +63,16 @@ export function Sidebar() {
         </nav>
 
         <div className="border-t border-border p-4">
-          <Link
-            href="/configuracoes"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            <Settings className="h-5 w-5" />
-            Configurações
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link
+              href="/configuracoes"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              <Settings className="h-5 w-5" />
+              Configurações
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </aside>
