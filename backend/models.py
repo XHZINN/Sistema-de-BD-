@@ -1,5 +1,7 @@
 from pydantic import BaseModel, model_validator
 from typing import List, Optional
+from datetime import datetime
+
 
 class Contato(BaseModel):
     nome: str
@@ -25,4 +27,13 @@ class CadastrarCliente(BaseModel):
     permite_cobranca_extra: bool = False
     descricao_regras: Optional[str] = None
 
-    
+class CadastrarVisita(BaseModel):
+    id_agendamento: str
+    hora_inicio: datetime
+    observacao: Optional[str] = None
+    registro_mult: Optional[str] = None
+
+
+class AtualizarVisita(BaseModel):
+    observacao: Optional[str] = None
+    registro_mult: Optional[str] = None
