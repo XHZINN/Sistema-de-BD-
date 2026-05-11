@@ -21,6 +21,8 @@ class CadastrarCliente(BaseModel):
     nome: str
     cidade: str
     tipo_cliente: str
+    email_oficial: Optional[str] = None      
+    telefone_oficial: Optional[str] = None    
     contatos: List[Contato]
     modelo: str
     valor: Optional[float] = None
