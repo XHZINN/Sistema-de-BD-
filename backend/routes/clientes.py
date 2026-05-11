@@ -35,3 +35,10 @@ async def cadastrar_cliente(dados: CadastrarCliente):
     }).execute()
 
     return {'mensagem': 'Cliente cadastrado com sucesso!', 'id_cliente': id_cliente}
+
+#listar clientes 
+
+@router.get('/listar')
+async def listar_clientes():
+    lista_clientes = supabase.table('cliente').select('*').execute()
+    return lista_clientes.data
