@@ -16,7 +16,32 @@ class Contato(BaseModel):
         if not self.telefone and not self.email:
             raise ValueError('Contato deve ter pelo menos telefone ou email')
         return self
+    
+class CadastrarContato(BaseModel):
+    """Usado na rota POST /cliente/{id}/contato/cadastrar — contato avulso."""
+    nome: str
+    vinculo: str
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    area: Optional[str] = None
+    observacoes: Optional[str] = None
 
+    @model_validator(mode='after')
+    def verificar_contato_minimo(self):
+        if not self.telefone and not self.email:
+            raise ValueError('Contato deve ter pelo menos telefone ou email.')
+        return self
+
+
+class AtualizarContato(BaseModel):
+    """Usado na rota PUT /contato/{id}/atualizar — todos os campos opcionais."""
+    nome: Optional[str] = None
+    vinculo: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    area: Optional[str] = None
+    observacoes: Optional[str] = None
+  
 class CadastrarCliente(BaseModel):
     nome: str
     cidade: str
@@ -28,6 +53,13 @@ class CadastrarCliente(BaseModel):
     valor: Optional[float] = None
     permite_cobranca_extra: bool = False
     descricao_regras: Optional[str] = None
+
+class AtualizarCliente(BaseModel):
+    nome: Optional[str] = None
+    cidade: Optional[str] = None
+    tipo_cliente: Optional[str] = None
+    email_oficial: Optional[str] = None
+    telefone_oficial: Optional[str] = None
 
 class CadastrarVisita(BaseModel):
     id_agendamento: str
