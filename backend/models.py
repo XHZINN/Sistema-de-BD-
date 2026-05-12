@@ -1,5 +1,5 @@
 from pydantic import BaseModel, model_validator
-from typing import List, Optional, Any, Dict
+from typing import List, Optional, Any, Dict, Literal
 from datetime import datetime, date
 
 
@@ -34,6 +34,10 @@ class CadastrarVisita(BaseModel):
     hora_inicio: datetime
     observacao: Optional[str] = None
     registro_mult: Optional[str] = None
+
+class AtualizarVisita(BaseModel):
+       observacao: Optional[str] = None
+       registro_mult: Optional[str] = None
 
 class CadastrarAgendamento(BaseModel):
     id_cliente: str
@@ -82,3 +86,23 @@ class AtualizarRelatorio(BaseModel):
     duracao: Optional[float] = None
     conteudo: Optional[Dict[str, Any]] = None
     conteudo_html: Optional[str] = None
+
+class CadastrarTarefa(BaseModel):
+    id_cliente: Optional[str] = None
+    descricao: str
+    origem: Literal['Atendimento', 'WhatsApp', 'Lembrete pessoal', 'Ligação rápida']
+    prioridade: Literal['Baixa', 'Média', 'Alta', 'Urgente']
+    status: Literal['Pendente', 'Em andamento', 'Concluída']
+    id_agendamento: Optional[str] = None
+
+
+class AtualizarTarefa(BaseModel):
+    id_cliente: Optional[str] = None
+    descricao: Optional[str] = None
+    origem: Optional[Literal['Atendimento', 'WhatsApp', 'Lembrete pessoal', 'Ligação rápida']] = None
+    prioridade: Optional[Literal['Baixa', 'Média', 'Alta', 'Urgente']] = None
+    status: Optional[Literal['Pendente', 'Em andamento', 'Concluída']] = None
+    id_agendamento: Optional[str] = None
+
+class AtualizarStatusTarefa(BaseModel):
+    status: Literal['Pendente', 'Em andamento', 'Concluída'] = None
