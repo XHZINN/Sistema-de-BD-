@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from database import supabase
 from models import CadastrarVisita, AtualizarVisita
-from typing import Optional
+from typing import Optional, Literal
 import uuid as uuid_lib
 
 router = APIRouter()
@@ -31,11 +31,18 @@ async def cadastrar_visita(dados: CadastrarVisita):
         # detail=str(e) pega a mensagem do erro e transforma em texto
         raise HTTPException(status_code=500, detail=str(e))
 
+
+
 # rota tipo GET(por ser GET, os dados vem pela URL, por isso que não usa BaseModel)
 @router.get('/listar')
 async def listar_visitas(
+    #aqui ele vai colocar os filtros para listar as visitas, eles podendo ser opcionais e quando não tiver é None
     id_agendamento: Optional[str] = None,
-    id_cliente: Optional[str] = None
+    id_cliente: Optional[str] = None,
+    tipo_agendamento: Optional[Literal['Planejada', 'Inesperada']] = None,
+    urgencia: Optional[Literal['Baixa', 'Média', 'Alta', 'Urgente']] = None,
+    formato: Optional[Literal['Presencial', 'Online']] = None
+
 ):
     try:
         # a view criada para não ter que fazer uma consulta complexa toda vez, selecionando todas as colunas da view
@@ -50,6 +57,15 @@ async def listar_visitas(
         # mesma coisa mas com ?id_agendamento=yyy, os dois podendo ser combinados
         if id_agendamento:
             query = query.eq('id_agendamento', id_agendamento)
+
+        if tipo_agendamento:
+            query = query.eq('tipo_agendamento', tipo_agendamento)
+
+        if urgencia:
+            query = query.eq('urgencia', urgencia)
+
+        if formato:
+            query = query.eq('formato', formato)
 
         # aqui que executa a query
         resposta = query.order('hora_inicio', desc=True).limit(50).execute()
@@ -122,9 +138,13 @@ async def atualizar_visita(id_visita: str, dados: AtualizarVisita):
         if not data:
             raise HTTPException(status_code=400, detail='Nenhum campo para atualizar')
 
-        supabase.table('visitas').update(data).eq('id_visita', id_visita).execute()
+        response = supabase.table('visitas').update(data).eq('id_visita', id_visita).execute()
 
-        return {'mensagem': 'Visita atualizada com sucesso!'}
+        if not response.data:
+            raise HTTPException(status_code=404, detail='Visita não encontrada')
+
+        return response.data[0]
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

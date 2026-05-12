@@ -1,5 +1,5 @@
 from pydantic import BaseModel, model_validator
-from typing import List, Optional, Any, Dict
+from typing import List, Optional, Any, Dict, Literal
 from datetime import datetime, date
 
 
@@ -16,7 +16,32 @@ class Contato(BaseModel):
         if not self.telefone and not self.email:
             raise ValueError('Contato deve ter pelo menos telefone ou email')
         return self
+    
+class CadastrarContato(BaseModel):
+    """Usado na rota POST /cliente/{id}/contato/cadastrar — contato avulso."""
+    nome: str
+    vinculo: str
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    area: Optional[str] = None
+    observacoes: Optional[str] = None
 
+    @model_validator(mode='after')
+    def verificar_contato_minimo(self):
+        if not self.telefone and not self.email:
+            raise ValueError('Contato deve ter pelo menos telefone ou email.')
+        return self
+
+
+class AtualizarContato(BaseModel):
+    """Usado na rota PUT /contato/{id}/atualizar — todos os campos opcionais."""
+    nome: Optional[str] = None
+    vinculo: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    area: Optional[str] = None
+    observacoes: Optional[str] = None
+  
 class CadastrarCliente(BaseModel):
     nome: str
     cidade: str
@@ -29,6 +54,13 @@ class CadastrarCliente(BaseModel):
     permite_cobranca_extra: bool = False
     descricao_regras: Optional[str] = None
 
+class AtualizarCliente(BaseModel):
+    nome: Optional[str] = None
+    cidade: Optional[str] = None
+    tipo_cliente: Optional[str] = None
+    email_oficial: Optional[str] = None
+    telefone_oficial: Optional[str] = None
+
 class CadastrarVisita(BaseModel):
     id_agendamento: str
     hora_inicio: datetime
@@ -38,6 +70,10 @@ class CadastrarVisita(BaseModel):
 class AtualizarVisita(BaseModel):
     observacao: Optional[str] = None
     registros: Optional[List[Dict[str, Any]]] = None
+
+class AtualizarVisita(BaseModel):
+       observacao: Optional[str] = None
+       registro_mult: Optional[str] = None
 
 class CadastrarAgendamento(BaseModel):
     id_cliente: Optional[str] = None
@@ -96,3 +132,22 @@ class AtualizarMensagem(BaseModel):
     status_vinculo: Optional[str] = None  # 'vinculado' | 'sugerido' | 'desconhecido' | 'ignorado'
     id_cliente: Optional[str] = None
  
+class CadastrarTarefa(BaseModel):
+    id_cliente: Optional[str] = None
+    descricao: str
+    origem: Literal['Atendimento', 'WhatsApp', 'Lembrete pessoal', 'Ligação rápida']
+    prioridade: Literal['Baixa', 'Média', 'Alta', 'Urgente']
+    status: Literal['Pendente', 'Em andamento', 'Concluída']
+    id_agendamento: Optional[str] = None
+
+
+class AtualizarTarefa(BaseModel):
+    id_cliente: Optional[str] = None
+    descricao: Optional[str] = None
+    origem: Optional[Literal['Atendimento', 'WhatsApp', 'Lembrete pessoal', 'Ligação rápida']] = None
+    prioridade: Optional[Literal['Baixa', 'Média', 'Alta', 'Urgente']] = None
+    status: Optional[Literal['Pendente', 'Em andamento', 'Concluída']] = None
+    id_agendamento: Optional[str] = None
+
+class AtualizarStatusTarefa(BaseModel):
+    status: Literal['Pendente', 'Em andamento', 'Concluída'] = None
