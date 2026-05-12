@@ -33,10 +33,14 @@ class CadastrarVisita(BaseModel):
     id_agendamento: str
     hora_inicio: datetime
     observacao: Optional[str] = None
-    registro_mult: Optional[str] = None
+    registros: Optional[List[Dict[str, Any]]] = None
+
+class AtualizarVisita(BaseModel):
+    observacao: Optional[str] = None
+    registros: Optional[List[Dict[str, Any]]] = None
 
 class CadastrarAgendamento(BaseModel):
-    id_cliente: str
+    id_cliente: Optional[str] = None
     tipo_agendamento: str       
     data: datetime
     urgencia: str                
@@ -82,3 +86,13 @@ class AtualizarRelatorio(BaseModel):
     duracao: Optional[float] = None
     conteudo: Optional[Dict[str, Any]] = None
     conteudo_html: Optional[str] = None
+
+class ResponderMensagem(BaseModel):
+    conteudo: str
+ 
+ 
+class AtualizarMensagem(BaseModel):
+    lida: Optional[bool] = None
+    status_vinculo: Optional[str] = None  # 'vinculado' | 'sugerido' | 'desconhecido' | 'ignorado'
+    id_cliente: Optional[str] = None
+ 

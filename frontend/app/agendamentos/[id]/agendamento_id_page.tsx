@@ -97,7 +97,7 @@ export default function AgendamentoDetailPage() {
   const [tiposVisita, setTiposVisita] = useState<string[]>([])
   const [formatosVisita, setFormatosVisita] = useState<string[]>([])
   const [prioridadeNivel, setPrioridadeNivel] = useState<string[]>([])
-  const statusOptions = ['Agendada', 'Concluída', 'Cancelada']
+  const statusOptions = ['Agendada', 'Cancelada']
 
   // Modo edição
   const [editing, setEditing] = useState(false)

@@ -14,6 +14,7 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  Check,
   X,
   MapPin,
   AlertCircle,
@@ -473,7 +474,10 @@ export default function AgendamentosPage() {
                                   key={a.id_agendamento}
                                   className={cn('truncate rounded px-1.5 py-0.5 text-xs font-medium',a.status === 'Cancelada' && 'bg-secondary text-muted-foreground line-through',a.urgencia === 'Urgente' && a.status !== 'Cancelada' && 'bg-destructive/10 text-destructive',a.status !== 'Cancelada' && a.urgencia !== 'Urgente' && 'bg-primary/10 text-primary')}
                                 >
-                                  {a.cliente?.nome}
+                                  <span className="flex items-center gap-1">
+                                  {a.status === 'Concluída' && <Check className="h-3 w-3 shrink-0 text-success" />}
+                                  {a.cliente?.nome ?? a.local ?? a.observacao?.slice(0, 30)}
+                                  </span>
                                 </div>
                               ))}
                               {dayAgendamentos.length > 2 && (
@@ -528,7 +532,10 @@ export default function AgendamentosPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-medium text-foreground">{a.cliente?.nome}</span>
+                                <span className="flex items-center gap-1">
+                                {a.status === 'Concluída' && <Check className="h-3 w-3 shrink-0 text-success" />}
+                                {a.cliente?.nome ?? a.local ?? a.observacao?.slice(0, 30)}
+                                </span>
                                 <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', urgencyColor[a.urgencia] ?? 'bg-secondary text-muted-foreground')}>
                                   {a.urgencia}
                                 </span>
@@ -572,7 +579,12 @@ export default function AgendamentosPage() {
                     const date = new Date(a.data)
                     return (
                       <Link key={a.id_agendamento} href={`/agendamentos/${a.id_agendamento}`} className={cn('block rounded-lg border border-border bg-secondary/30 p-3 transition-colors hover:bg-secondary/60',a.status === 'Cancelada' && cardColor['Cancelada'],a.urgencia === 'Urgente' && a.status !== 'Cancelada' && cardColor['Urgente'])}>
-                        <p className="font-medium text-foreground">{a.cliente?.nome}</p>
+                        <p className="font-medium text-foreground">
+                          <span className="flex items-center gap-1">
+                          {a.status === 'Concluída' && <Check className="h-3 w-3 shrink-0 text-success" />}
+                          {a.cliente?.nome ?? a.local ?? a.observacao?.slice(0, 30)}
+                          </span>
+                        </p>
                         <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />

@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException 
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from database import supabase
-from models import CadastrarVisita
+from models import CadastrarVisita, AtualizarVisita
 from typing import Optional
+import uuid as uuid_lib
 
 router = APIRouter()
   
@@ -18,7 +19,7 @@ async def cadastrar_visita(dados: CadastrarVisita):
             'hora_inicio': dados.hora_inicio.isoformat(),
             #nessa tem que colocar os if pra não quebrar tudo se retornar null
             'observacao': dados.observacao.capitalize().strip() if dados.observacao else None,
-            'registro_mult': dados.registro_mult.strip() if dados.registro_mult else None,
+            'registros': dados.registros if dados.registros else [],
         }).execute()
 
         # retorna mensagem confirmando
@@ -51,7 +52,7 @@ async def listar_visitas(
             query = query.eq('id_agendamento', id_agendamento)
 
         # aqui que executa a query
-        resposta = query.execute()
+        resposta = query.order('hora_inicio', desc=True).limit(50).execute()
 
         #retorna os dados pro front
         return resposta.data
@@ -69,16 +70,61 @@ async def buscar_visita(id_visita: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# @router.put('/{id_visita}/atualizar')
-# #ele vai pegar o id da visita pra saber qual tem que atualizar ai usa o BaseModel
-# async def atualizar_visita(id_visita: str, dados: AtualizarVisita):
-#     try: 
-#         supabase.table('visitas').update({
-#             'observacao': dados.observacao.capitalize().strip() if dados.observacao else None,
-#             'registro_mult': dados.registro_mult.strip() if dados.registro_mult else None
-#         }).eq('id_visita',id_visita).execute()
-        
-#         return {'mensagem': 'Visita atualizada com sucesso!'}
-    
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+@router.post('/{id_visita}/midia')
+async def upload_midia(id_visita: str, file: UploadFile = File(...)):
+    contents = await file.read()
+    ext = file.filename.split('.')[-1]
+    path = f"visitas/{id_visita}/{uuid_lib.uuid4()}.{ext}"
+
+    supabase.storage.from_('visitas').upload(path, contents, {
+        "content-type": file.content_type
+    })
+
+    url = supabase.storage.from_('visitas').get_public_url(path)
+
+    novo_registro = {
+        "nome":      file.filename,
+        "url":       url,
+        "path":      path,
+        "tipo":      file.content_type,
+        "tamanho":   len(contents),
+        "criado_em": __import__('datetime').datetime.utcnow().isoformat(),
+    }
+
+    visita = supabase.table('visitas').select('registros').eq('id_visita', id_visita).single().execute()
+    registros_atuais = visita.data.get('registros') or []
+    registros_atuais.append(novo_registro)
+
+    supabase.table('visitas').update({'registros': registros_atuais}).eq('id_visita', id_visita).execute()
+
+    return novo_registro
+
+
+@router.delete('/{id_visita}/midia')
+def deletar_midia(id_visita: str, path: str):
+    supabase.storage.from_('visitas').remove([path])
+
+    visita = supabase.table('visitas').select('registros').eq('id_visita', id_visita).single().execute()
+    registros = [r for r in (visita.data.get('registros') or []) if r['path'] != path]
+    supabase.table('visitas').update({'registros': registros}).eq('id_visita', id_visita).execute()
+
+    return {'ok': True}
+
+@router.put('/{id_visita}/atualizar')
+async def atualizar_visita(id_visita: str, dados: AtualizarVisita):
+    try:
+        data = {}
+        if dados.observacao is not None:
+            data['observacao'] = dados.observacao.capitalize().strip()
+        if dados.registros is not None:
+            data['registros'] = dados.registros
+
+        if not data:
+            raise HTTPException(status_code=400, detail='Nenhum campo para atualizar')
+
+        supabase.table('visitas').update(data).eq('id_visita', id_visita).execute()
+
+        return {'mensagem': 'Visita atualizada com sucesso!'}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -54,7 +54,9 @@ interface Relatorio {
 interface Visita {
   id_visita: string
   id_agendamento: string
-  agendamentos?: { id_cliente: string; cliente?: { nome: string } }
+  hora_inicio: string
+  nome_cliente: string | null
+  local: string | null
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -85,6 +87,9 @@ export default function RelatoriosPage() {
 
   const [relatorios, setRelatorios] = useState<Relatorio[]>([])
   const [visitas, setVisitas]       = useState<Visita[]>([])
+  const [visitaSearch, setVisitaSearch]       = useState('')
+  const [visitaDateFrom, setVisitaDateFrom]   = useState('')
+  const [visitaDateTo, setVisitaDateTo]       = useState('')
   const [loadingPage, setLoadingPage] = useState(true)
   const [loadingSave, setLoadingSave] = useState(false)
 
@@ -153,6 +158,9 @@ export default function RelatoriosPage() {
         status: 'Pendente', avancos: '', proximo_passo: '',
       })
       setIsDialogOpen(false)
+      setVisitaSearch('')
+      setVisitaDateFrom('')
+      setVisitaDateTo('')
     } finally {
       setLoadingSave(false)
     }
@@ -188,6 +196,16 @@ export default function RelatoriosPage() {
 
   const selectClass = 'rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground'
   const selectFullClass = cn(selectClass, 'w-full')
+  const visitasFiltradas = visitas
+    .filter(v => {
+      const matchNome = !visitaSearch ||
+        (v.nome_cliente ?? '').toLowerCase().includes(visitaSearch.toLowerCase())
+      const matchFrom = !visitaDateFrom ||
+        v.hora_inicio >= visitaDateFrom
+      const matchTo = !visitaDateTo ||
+        v.hora_inicio <= visitaDateTo
+      return matchNome && matchFrom && matchTo
+    })
 
   // ── Render ────────────────────────────────────────────────────────────
 
@@ -248,18 +266,74 @@ export default function RelatoriosPage() {
 
                 <div className="space-y-2">
                   <Label>Visita</Label>
-                  <select
-                    value={newRelatorio.id_visita}
-                    onChange={e => setNewRelatorio({ ...newRelatorio, id_visita: e.target.value })}
-                    className={selectFullClass}
-                  >
-                    <option value="">Selecione uma visita</option>
-                    {visitas.map(v => (
-                      <option key={v.id_visita} value={v.id_visita}>
-                        {v.agendamentos?.cliente?.nome ?? v.id_visita}
-                      </option>
-                    ))}
-                  </select>
+
+                  {/* Filtros de busca */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Buscar cliente..."
+                      value={visitaSearch}
+                      onChange={e => setVisitaSearch(e.target.value)}
+                      className="flex-1"
+                    />
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">De</span>
+                      <Input 
+                        type="date"
+                        value={visitaDateFrom}
+                        onChange={e => setVisitaDateFrom(e.target.value)}
+                        className="w-36 [color-scheme:light] dark:[color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">Até</span>
+                      <Input
+                        type="date"
+                        value={visitaDateTo}
+                        onChange={e => setVisitaDateTo(e.target.value)}
+                        className="w-36 [color-scheme:light] dark:[color-scheme:dark]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Lista de visitas filtradas */}
+                  <div className="max-h-48 overflow-y-auto rounded-lg border border-border">
+                    {visitasFiltradas.length === 0 ? (
+                      <p className="p-3 text-sm text-muted-foreground text-center">
+                        Nenhuma visita encontrada
+                      </p>
+                    ) : (
+                      visitasFiltradas.map(v => (
+                        <button
+                          key={v.id_visita}
+                          type="button"
+                          onClick={() => setNewRelatorio({ ...newRelatorio, id_visita: v.id_visita })}
+                          className={cn(
+                            'w-full px-3 py-2.5 text-left text-sm transition-colors hover:bg-secondary',
+                            'flex items-center justify-between gap-2',
+                            newRelatorio.id_visita === v.id_visita && 'bg-primary/10 text-primary font-medium'
+                          )}
+                        >
+                          <span className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            {v.nome_cliente ?? '—'}
+                          </span>
+                          <span className="shrink-0 text-xs text-muted-foreground">
+                            {formatDate(v.hora_inicio)}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Visita selecionada */}
+                  {newRelatorio.id_visita && (() => {
+                    const v = visitas.find(v => v.id_visita === newRelatorio.id_visita)
+                    return v ? (
+                      <p className="text-xs text-muted-foreground">
+                        ✓ Selecionado: <strong>{v.nome_cliente}</strong> — {formatDate(v.hora_inicio)}
+                      </p>
+                    ) : null
+                  })()}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
