@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from database import supabase
 from models import CadastrarVisita, AtualizarVisita
-from typing import Optional, Literal
+from typing import Optional
 import uuid as uuid_lib
 
 router = APIRouter()
@@ -39,9 +39,9 @@ async def listar_visitas(
     #aqui ele vai colocar os filtros para listar as visitas, eles podendo ser opcionais e quando não tiver é None
     id_agendamento: Optional[str] = None,
     id_cliente: Optional[str] = None,
-    tipo_agendamento: Optional[Literal['Planejada', 'Inesperada']] = None,
-    urgencia: Optional[Literal['Baixa', 'Média', 'Alta', 'Urgente']] = None,
-    formato: Optional[Literal['Presencial', 'Online']] = None
+    tipo_agendamento: Optional[str] = None,
+    urgencia: Optional[str] = None,
+    formato: Optional[str] = None
 
 ):
     try:
