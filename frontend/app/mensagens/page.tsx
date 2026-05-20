@@ -1,13 +1,19 @@
 'use client'
 
+<<<<<<< HEAD
 import { useState } from 'react'
 import { Header } from '@/components/header'
 import { mockMessages, mockClients } from '@/lib/mock-data'
 import { Message } from '@/lib/types'
+=======
+import { useState, useEffect } from 'react'
+import { Header } from '@/components/header'
+>>>>>>> 3de387f (Atualização pré deploy)
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+<<<<<<< HEAD
 import {
   MessageSquare,
   Mail,
@@ -110,11 +116,109 @@ export default function MensagensPage() {
     const diff = now.getTime() - d.getTime()
     const hours = Math.floor(diff / (1000 * 60 * 60))
 
+=======
+import { MessageSquare, Mail, Send, Search, Filter, CheckCheck, Building2 } from 'lucide-react'
+
+const API = process.env.NEXT_PUBLIC_API_BACKEND
+
+interface Message {
+  id_mensagem: string
+  id_cliente?: string
+  canal: string
+  direcao: 'recebida' | 'enviada'
+  conteudo: string
+  lida: boolean
+  remetente: string
+  status_vinculo: string
+  created_at: string
+  cliente?: { nome: string }
+}
+
+export default function MensagensPage() {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [channelFilter, setChannelFilter] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [replyText, setReplyText] = useState('')
+
+  useEffect(() => { fetchMensagens() }, [])
+
+  async function fetchMensagens() {
+    const res = await fetch(`${API}/mensagem/listar`)
+    const data = await res.json()
+    setMessages(Array.isArray(data) ? data : [])
+  }
+
+  // última mensagem por remetente
+  const conversas = Object.values(
+    messages.reduce((acc, msg) => {
+      const key = msg.remetente
+      if (!acc[key] || new Date(msg.created_at) > new Date(acc[key].created_at)) acc[key] = msg
+      return acc
+    }, {} as Record<string, Message>)
+  ).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+  // não lidas por remetente
+  const unreadPorRemetente = messages.reduce((acc, msg) => {
+    if (!msg.lida && msg.direcao === 'recebida') acc[msg.remetente] = (acc[msg.remetente] ?? 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  const unreadCount = Object.values(unreadPorRemetente).reduce((a, b) => a + b, 0)
+
+  const clientMessages = selectedMessage
+    ? messages.filter(m => m.remetente === selectedMessage.remetente)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    : []
+
+  async function handleSelectMessage(msg: Message) {
+    setSelectedMessage(msg)
+    setMessages(prev => prev.map(m => m.remetente === msg.remetente ? { ...m, lida: true } : m))
+    const naoLidas = messages.filter(m => m.remetente === msg.remetente && !m.lida)
+    await Promise.all(naoLidas.map(m =>
+      fetch(`${API}/mensagem/${m.id_mensagem}/atualizar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lida: true }),
+      })
+    ))
+  }
+
+  async function handleSendReply() {
+    if (!replyText.trim() || !selectedMessage) return
+    await fetch(`${API}/mensagem/${selectedMessage.id_mensagem}/responder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conteudo: replyText }),
+    })
+    setMessages(prev => [...prev, {
+      id_mensagem: String(Date.now()),
+      canal: selectedMessage.canal,
+      direcao: 'enviada',
+      conteudo: replyText,
+      lida: true,
+      remetente: selectedMessage.remetente,
+      status_vinculo: 'vinculado',
+      created_at: new Date().toISOString(),
+    }])
+    setReplyText('')
+  }
+
+  const getChannelIcon = (canal: string) => canal === 'email' ? <Mail className="h-4 w-4" /> : <MessageSquare className="h-4 w-4" />
+  const getChannelColor = (canal: string) => canal === 'email' ? 'bg-primary/10 text-primary' : 'bg-success/10 text-success'
+  const getChannelName = (canal: string) => canal === 'email' ? 'E-mail' : 'WhatsApp'
+
+  const formatTime = (date: string) => {
+    const d = new Date(date)
+    const diff = Date.now() - d.getTime()
+    const hours = Math.floor(diff / 3600000)
+>>>>>>> 3de387f (Atualização pré deploy)
     if (hours < 1) return 'Agora'
     if (hours < 24) return `${hours}h`
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
   }
 
+<<<<<<< HEAD
   const formatFullDate = (date: string) => {
     return new Date(date).toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -132,6 +236,14 @@ export default function MensagensPage() {
       )
     : []
 
+=======
+  const conversasFiltradas = conversas.filter(m => {
+    const matchCanal = channelFilter === 'all' || m.canal === channelFilter
+    const nome = m.cliente?.nome ?? m.remetente
+    const matchSearch = nome.toLowerCase().includes(searchTerm.toLowerCase()) || m.conteudo.toLowerCase().includes(searchTerm.toLowerCase())
+  return matchCanal && matchSearch
+})
+>>>>>>> 3de387f (Atualização pré deploy)
   return (
     <div className="min-h-screen">
       <Header title="Mensagens" subtitle="Central de comunicação" />
@@ -174,6 +286,7 @@ export default function MensagensPage() {
 
           {/* Message List */}
           <div className="h-[calc(100%-8rem)] overflow-y-auto">
+<<<<<<< HEAD
             {filteredMessages.filter(m => m.direction === 'incoming').map((message) => (
               <button
                 key={message.id}
@@ -212,6 +325,42 @@ export default function MensagensPage() {
             ))}
 
             {filteredMessages.filter(m => m.direction === 'incoming').length === 0 && (
+=======
+            {conversasFiltradas.map(msg => {
+              const unread = unreadPorRemetente[msg.remetente] ?? 0
+              return (
+                <button
+                  key={msg.remetente}
+                  onClick={() => handleSelectMessage(msg)}
+                  className={cn(
+                    'relative flex w-full items-start gap-3 border-b border-border p-4 text-left transition-colors hover:bg-secondary/50',
+                    selectedMessage?.remetente === msg.remetente && 'bg-secondary/50',
+                    unread > 0 && 'bg-primary/5'
+                  )}
+                >
+                  {unread > 0 && (
+                    <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      {unread}
+                    </span>
+                  )}
+                  <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', getChannelColor(msg.canal))}>
+                    {getChannelIcon(msg.canal)}
+                  </div>
+                  <div className="min-w-0 flex-1 pr-6">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={cn('truncate font-medium text-foreground', unread > 0 && 'font-semibold')}>
+                        {msg.cliente?.nome ?? msg.remetente}
+                      </p>
+                      <span className="shrink-0 text-xs text-muted-foreground">{formatTime(msg.created_at)}</span>
+                    </div>
+                    <p className="mt-0.5 truncate text-sm text-muted-foreground">{msg.conteudo}</p>
+                    <span className="mt-1 inline-block text-xs text-muted-foreground">{getChannelName(msg.canal)}</span>
+                  </div>
+                </button>
+              )
+            })}
+            {conversasFiltradas.length === 0 && (
+>>>>>>> 3de387f (Atualização pré deploy)
               <div className="py-12 text-center">
                 <p className="text-muted-foreground">Nenhuma mensagem encontrada</p>
               </div>
@@ -226,6 +375,7 @@ export default function MensagensPage() {
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border p-4">
                 <div className="flex items-center gap-3">
+<<<<<<< HEAD
                   <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', getChannelColor(selectedMessage.channel))}>
                     {getChannelIcon(selectedMessage.channel)}
                   </div>
@@ -233,13 +383,28 @@ export default function MensagensPage() {
                     <p className="font-medium text-foreground">{selectedMessage.clientName}</p>
                     <p className="text-sm text-muted-foreground">
                       {getChannelName(selectedMessage.channel)}
+=======
+                  <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', getChannelColor(selectedMessage.canal))}>
+                    {getChannelIcon(selectedMessage.canal)}
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{selectedMessage.cliente?.nome ?? selectedMessage.remetente}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {getChannelName(selectedMessage.canal)}
+>>>>>>> 3de387f (Atualização pré deploy)
                     </p>
                   </div>
                 </div>
 
+<<<<<<< HEAD
                 {selectedMessage.clientId && (
                   <Button variant="outline" size="sm" asChild>
                     <a href={`/clientes/${selectedMessage.clientId}`}>
+=======
+                {selectedMessage.id_cliente && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/clientes/${selectedMessage.id_cliente}`}>
+>>>>>>> 3de387f (Atualização pré deploy)
                       <Building2 className="mr-2 h-4 w-4" />
                       Ver Cliente
                     </a>
@@ -251,20 +416,32 @@ export default function MensagensPage() {
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {clientMessages.map((msg) => (
                   <div
+<<<<<<< HEAD
                     key={msg.id}
                     className={cn(
                       'flex',
                       msg.direction === 'outgoing' ? 'justify-end' : 'justify-start'
+=======
+                    key={msg.id_mensagem}
+                    className={cn(
+                      'flex',
+                      msg.direcao === 'enviada' ? 'justify-end' : 'justify-start'
+>>>>>>> 3de387f (Atualização pré deploy)
                     )}
                   >
                     <div
                       className={cn(
                         'max-w-md rounded-2xl px-4 py-2.5',
+<<<<<<< HEAD
                         msg.direction === 'outgoing'
+=======
+                        msg.direcao === 'enviada'
+>>>>>>> 3de387f (Atualização pré deploy)
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-foreground'
                       )}
                     >
+<<<<<<< HEAD
                       <p className="text-sm">{msg.content}</p>
                       <div className={cn(
                         'mt-1 flex items-center justify-end gap-1 text-xs',
@@ -272,6 +449,15 @@ export default function MensagensPage() {
                       )}>
                         <span>{formatTime(msg.createdAt)}</span>
                         {msg.direction === 'outgoing' && (
+=======
+                      <p className="text-sm">{msg.conteudo}</p>
+                      <div className={cn(
+                        'mt-1 flex items-center justify-end gap-1 text-xs',
+                        msg.direcao === 'enviada' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                      )}>
+                        <span>{formatTime(msg.created_at)}</span>
+                        {msg.direcao === 'enviada' && (
+>>>>>>> 3de387f (Atualização pré deploy)
                           <CheckCheck className="h-3.5 w-3.5" />
                         )}
                       </div>

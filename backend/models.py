@@ -151,3 +151,23 @@ class AtualizarTarefa(BaseModel):
 
 class AtualizarStatusTarefa(BaseModel):
     status: Literal['Pendente', 'Em andamento', 'Concluída'] = None
+
+class CadastrarPagamento(BaseModel):
+    id_contrato: str
+    id_relatorio: Optional[str] = None
+    valor: float
+    tipo: Literal['Mensalidade', 'Cobrança extra']
+    data_vencimento: date
+    observacao: Optional[str] = None
+
+class ConfirmarPagamento(BaseModel):
+    data_pagamento: date
+    observacao: Optional[str] = None
+
+class AtualizarPagamento(BaseModel):
+    valor: Optional[float] = None
+    tipo: Optional[Literal['Mensalidade', 'Cobrança extra']] = None
+    status: Optional[Literal['Pendente', 'Pago', 'Atrasado']] = None
+    data_vencimento: Optional[date] = None
+    data_pagamento: Optional[date] = None
+    observacao: Optional[str] = None

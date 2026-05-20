@@ -1,35 +1,117 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { StatsCard } from '@/components/stats-card'
 import { ClientList } from '@/components/client-list'
 import { TaskList } from '@/components/task-list'
 import { UpcomingVisits } from '@/components/upcoming-visits'
 import { MessagePreview } from '@/components/message-preview'
-import { mockClients, mockTasks, mockVisits, mockMessages } from '@/lib/mock-data'
 import { Users, Calendar, AlertTriangle, MessageSquare, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
+const API = process.env.NEXT_PUBLIC_API_BACKEND
+
+interface Cliente {
+  id_cliente: string
+  nome: string
+  status: string
+}
+
+interface Tarefa {
+  id_tarefa: string
+  descricao: string
+  prioridade: string
+  status: string
+}
+
+interface Agendamento {
+  id_agendamento: string
+  status: string
+  data: string
+}
+
+interface Mensagem {
+  id_mensagem: string
+  lida: boolean
+  direcao: string
+  conteudo: string
+  remetente: string
+}
+
 export default function Dashboard() {
-  const [tasks, setTasks] = useState(mockTasks)
+  const [clientes, setClientes] = useState<any[]>([])
+  const [tasks, setTasks] = useState<any[]>([])
+  const [visitas, setVisitas] = useState<any[]>([])
+  const [mensagens, setMensagens] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const activeClients = mockClients.filter(c => c.status === 'active').length
-  const upcomingVisits = mockVisits.filter(v => v.status === 'scheduled').length
-  const urgentTasks = tasks.filter(t => t.priority === 'urgent' && t.status !== 'completed').length
-  const unreadMessages = mockMessages.filter(m => !m.read).length
+  const activeClients = clientes.filter(c => c.status === 'Ativo').length
 
-  const handleToggleTask = (taskId: string) => {
-    setTasks(prev => prev.map(task => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          status: task.status === 'completed' ? 'pending' : 'completed'
-        }
-      }
-      return task
+  const upcomingVisits = visitas.filter(v => v.status === 'Agendada').length
+
+  const urgentTasks = tasks.filter(t => t.prioridade === 'Urgente' && t.status !== 'Concluída').length
+
+  const unreadMessages = mensagens.filter(m => !m.lida).length
+
+  useEffect(() => {
+    Promise.all([
+      fetchClientes(),
+      fetchTarefas(),
+      fetchAgendamentos(),
+      fetchMensagens(),
+    ]).finally(() => setLoading(false))
+  }, [])
+
+  async function fetchClientes() {
+    const res = await fetch(`${API}/cliente/listar`)
+    const data = await res.json()
+    const mapeado = (Array.isArray(data) ? data : []).map((c: any) => ({
+      id: c.id_cliente,
+      name: c.nome,
+      company: c.cidade,       // ajusta se tiver campo melhor
+      email: c.email_oficial ?? '',
+      phone: c.telefone_oficial ?? '',
+      status: c.status ?? 'active',
+      // adiciona os outros campos que o erro pedir
     }))
+    setClientes(mapeado as any)
+  }
+
+  async function fetchTarefas() {
+    const res = await fetch(`${API}/tarefas/listar`)
+    const data = await res.json()
+    setTasks(Array.isArray(data) ? data : [])
+  }
+
+  async function fetchAgendamentos() {
+    const res = await fetch(`${API}/agendamento/listar`)
+    const data = await res.json()
+    setVisitas(Array.isArray(data) ? data : [])
+  }
+
+  async function fetchMensagens() {
+    const res = await fetch(`${API}/mensagens/listar`)
+    const data = await res.json()
+    setMensagens(Array.isArray(data) ? data : [])
+  }
+
+  const handleToggleTask = async (taskId: string) => {
+    const tarefa = tasks.find(t => t.id_tarefa === taskId)
+    if (!tarefa) return
+
+    const novoStatus = tarefa.status === 'Concluída' ? 'Pendente' : 'Concluída'
+
+    await fetch(`${API}/tarefas/${taskId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: novoStatus }),
+    })
+
+    setTasks(prev => prev.map(t =>
+      t.id_tarefa === taskId ? { ...t, status: novoStatus } : t
+    ))
   }
 
   return (
@@ -45,7 +127,7 @@ export default function Dashboard() {
           <StatsCard
             title="Clientes Ativos"
             value={activeClients}
-            description={`${mockClients.length} clientes no total`}
+            description={`${clientes.length} clientes no total`}
             icon={Users}
             variant="primary"
           />
@@ -90,7 +172,7 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="p-4">
-                <ClientList clients={mockClients.slice(0, 4)} />
+                <ClientList clients={clientes.slice(0, 4)} />
                 <Link 
                   href="/clientes" 
                   className="mt-4 block text-center text-sm text-primary hover:underline"
@@ -115,7 +197,7 @@ export default function Dashboard() {
               </div>
               <div className="p-4">
                 <TaskList 
-                  tasks={tasks.filter(t => t.status !== 'completed').slice(0, 4)} 
+                  tasks={tasks.filter(t => t.status !== 'Concluída').slice(0, 4)}
                   onToggleStatus={handleToggleTask}
                 />
               </div>
@@ -140,7 +222,7 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="p-4">
-              <UpcomingVisits visits={mockVisits.slice(0, 3)} />
+              <UpcomingVisits visits={visitas.slice(0, 3)} />
               <Link 
                 href="/visitas" 
                 className="mt-4 block text-center text-sm text-primary hover:underline"
@@ -164,7 +246,7 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="p-4">
-              <MessagePreview messages={mockMessages.filter(m => m.direction === 'incoming').slice(0, 3)} />
+              <MessagePreview messages={mensagens.filter(m => m.direcao === 'recebida').slice(0, 3)} />
             </div>
           </div>
         </div>

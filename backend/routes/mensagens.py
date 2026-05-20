@@ -56,9 +56,11 @@ def responder_mensagem(id_mensagem: str, body: ResponderMensagem):
         raise HTTPException(status_code=404, detail='Mensagem não encontrada')
 
     msg = original.data
-
     if msg['canal'] == 'email':
-        enviar_email(msg['remetente'], body.conteudo)
+        try:
+            enviar_email(msg['remetente'], body.conteudo)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f'Erro ao enviar email: {str(e)}')
     else:
         raise HTTPException(status_code=400, detail=f"Canal '{msg['canal']}' ainda não suportado para envio")
 

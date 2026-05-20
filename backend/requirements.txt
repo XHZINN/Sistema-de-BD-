@@ -4,3 +4,4 @@ supabase
 python-dotenv
 apscheduler 
 imapclient
+python-multipart
