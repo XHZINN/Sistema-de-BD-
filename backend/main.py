@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import clientes, contatos, visitas, agendamentos, enums, relatorios, mensagens, tarefas
+from routes import clientes, contatos, visitas, agendamentos, enums, relatorios, mensagens, tarefas, pagamento
 from email_service import checar_emails
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -25,8 +25,9 @@ app.include_router(relatorios.router, prefix='/relatorio')
 app.include_router(contatos.router , prefix='/contatos')
 app.include_router(tarefas.router , prefix='/tarefas')
 app.include_router(mensagens.router,   prefix='/mensagem')
+app.include_router(pagamento.router, prefix='/pagamento')
 
-# ── Job periódico: checa emails a cada 2 minutos ──
+# ── Job periódico: checa emails a cada 1 minutos ──
 scheduler = BackgroundScheduler()
 scheduler.add_job(checar_emails, 'interval', minutes=1)
 scheduler.start()

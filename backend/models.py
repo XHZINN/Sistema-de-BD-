@@ -71,9 +71,6 @@ class AtualizarVisita(BaseModel):
     observacao: Optional[str] = None
     registros: Optional[List[Dict[str, Any]]] = None
 
-class AtualizarVisita(BaseModel):
-       observacao: Optional[str] = None
-       registro_mult: Optional[str] = None
 
 class CadastrarAgendamento(BaseModel):
     id_cliente: Optional[str] = None
@@ -171,3 +168,21 @@ class AtualizarPagamento(BaseModel):
     data_vencimento: Optional[date] = None
     data_pagamento: Optional[date] = None
     observacao: Optional[str] = None
+
+class CadastrarContrato(BaseModel):
+    modelo: str
+    valor: Optional[float] = None
+    permite_cobranca_extra: bool = False
+    descricao_regras: Optional[str] = None
+    data_fechamento: Optional[date] = None
+    prazo_contrato: Optional[date] = None
+ 
+ 
+class AtualizarContrato(BaseModel):
+    modelo: Optional[str] = None
+    valor: Optional[float] = None
+    permite_cobranca_extra: Optional[bool] = None
+    descricao_regras: Optional[str] = None
+    data_fechamento: Optional[date] = None
+    prazo_contrato: Optional[date] = None
+ 

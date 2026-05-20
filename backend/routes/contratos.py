@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException, Query
-from typing import Optional, List
+from fastapi import APIRouter, HTTPException
+from typing import Optional
 from database import supabase
 from models import CadastrarContrato, AtualizarContrato
-from datetime import date
 
 router = APIRouter()
 
@@ -10,12 +9,7 @@ router = APIRouter()
 @router.post('/cliente/{id_cliente}/contrato/cadastrar')
 def cadastrar_contrato(id_cliente: str, body: CadastrarContrato):
     data = body.model_dump()
-    data['id_cliente'] = id_cliente 
-    
-    
-    data['data_inicio'] = data['data_inicio'].isoformat()
-    if data['data_fim']:
-        data['data_fim'] = data['data_fim'].isoformat()
+    data['id_cliente'] = id_cliente
 
     response = supabase.table('contratos').insert(data).execute()
 
@@ -33,7 +27,13 @@ def listar_contratos_cliente(id_cliente: str):
 
 @router.get('/contrato/{id_contrato}')
 def buscar_contrato(id_contrato: str):
-    response = supabase.table('contratos').select('*').eq('id', id_contrato).single().execute()
+    response = (
+        supabase.table('contratos')
+        .select('*')
+        .eq('id_contrato', id_contrato)
+        .single()
+        .execute()
+    )
 
     if not response.data:
         raise HTTPException(status_code=404, detail='Contrato não encontrado')
@@ -43,18 +43,17 @@ def buscar_contrato(id_contrato: str):
 
 @router.put('/contrato/{id_contrato}/atualizar')
 def atualizar_contrato(id_contrato: str, body: AtualizarContrato):
-    
     data = {k: v for k, v in body.model_dump().items() if v is not None}
 
     if not data:
         raise HTTPException(status_code=400, detail='Nenhum campo para atualizar')
 
-    
-    for campo in ['data_inicio', 'data_fim']:
-        if campo in data and data[campo]:
-            data[campo] = data[campo].isoformat()
-
-    response = supabase.table('contratos').update(data).eq('id', id_contrato).execute()
+    response = (
+        supabase.table('contratos')
+        .update(data)
+        .eq('id_contrato', id_contrato)
+        .execute()
+    )
 
     if not response.data:
         raise HTTPException(status_code=404, detail='Contrato não encontrado')
